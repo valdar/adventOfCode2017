@@ -26,3 +26,10 @@ func Reverse(s []int) {
 		s[i], s[j] = s[j], s[i]
 	}
 }
+
+func Round(val float64) int {
+	if val < 0 {
+		return int(val - 0.5)
+	}
+	return int(val + 0.5)
+}
