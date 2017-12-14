@@ -3,6 +3,8 @@ package main
 import (
 	"reflect"
 	"testing"
+
+	"github.com/valdar/adventOfCode2017/day10/hashKnot"
 )
 
 func TestCalcOccurencies(t *testing.T) {
@@ -21,7 +23,7 @@ func TestCalcOccurencies(t *testing.T) {
 	}
 	for _, c := range cases {
 		originalIn := append([]int{}, c.in...)
-		got := PerformStep(c.in, c.inStartPos, c.inSkipSize, c.inLength, len(c.in))
+		got := hashKnot.PerformStep(c.in, c.inStartPos, c.inSkipSize, c.inLength, len(c.in))
 		if !reflect.DeepEqual(c.in, c.want) || got != c.wantNextPos {
 			t.Errorf("PerformStep(%v, %d, %d, %d, %d) == %v, %d want %v, %d", originalIn, c.inStartPos, c.inSkipSize, c.inLength, len(c.in), c.in, got, c.want, c.wantNextPos)
 		}
@@ -39,7 +41,7 @@ func TestCalcHash(t *testing.T) {
 	}
 	for _, c := range cases {
 		originalIn := append([]int{}, c.in...)
-		got := CalcHash(c.in, c.inLenght)
+		got := hashKnot.CalcHash(c.in, c.inLenght)
 		if !reflect.DeepEqual(c.in, c.wantStatus) || got != c.want {
 			t.Errorf("CalcHash(%v, %v) == %v, %d want %v, %d", originalIn, c.inLenght, c.in, got, c.wantStatus, c.want)
 		}
@@ -61,7 +63,7 @@ func TestCalcHashKnot(t *testing.T) {
 		{"1,2,4", "bc0d6ccdc92c757405822f023cbd7ea1"},
 	}
 	for _, c := range cases {
-		got := CalcHashKnot(inputSlice, c.in)
+		got := hashKnot.CalcHashKnot(inputSlice, c.in)
 		if got != c.want {
 			t.Errorf("CalcHashKnot(inputSlice, %v) == %v want %v", c.in, got, c.want)
 		}
