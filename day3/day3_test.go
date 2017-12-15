@@ -41,3 +41,18 @@ func TestCalcCoordinates(t *testing.T) {
 		}
 	}
 }
+
+func TestSolveB(t *testing.T) {
+	cases := []struct {
+		in   int
+		want int
+	}{
+		{747, 806},
+	}
+	for _, c := range cases {
+		got := SolveB(c.in)
+		if got != c.want {
+			t.Errorf("SolveB(%d) = %d want %d", c.in, got, c.want)
+		}
+	}
+}

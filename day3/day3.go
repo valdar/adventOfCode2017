@@ -8,6 +8,12 @@ import (
 	"github.com/valdar/adventOfCode2017/utils"
 )
 
+type position struct {
+	x    int
+	y    int
+	hash string
+}
+
 func main() {
 	caseSelection := os.Args[1]
 	input, err := strconv.Atoi(os.Args[2])
@@ -21,7 +27,7 @@ func main() {
 		fmt.Printf("Which means, plottin in a cartesian graph, position %d,%d\n", x, y)
 		fmt.Printf("Data from square %d is carried %d\n", input, calcSteps(x, y, layer))
 	case caseSelection == "B":
-		//fmt.Printf("The checksum is %d\n", calcCS(CalcCheckSumByEvenDivision, br))
+		fmt.Printf("The first greatest of %d value encoutered is %d\n", input, SolveB(input))
 	default:
 		fmt.Printf("Invalid Selection, possible values: A or B\n")
 	}
@@ -67,16 +73,89 @@ func calcSteps(x int, y int, layer int) int {
 	return utils.Abs(centerX-x) + utils.Abs(centerY-y)
 }
 
-//TODO: solve B
-// func solveB(target int) int {
-// 	directions := map[string]string{"RIGHT": "UP", "UP": "LEFT", "LEFT": "DOWN", "DOWN": "RIGHT"}
-// 	m := make(map[string]int)
-// 	m["00"] = 1
-// 	startingDirection := "RIGHT"
+func SolveB(target int) int {
+	const UP = "UP"
+	const DOWN = "DOWN"
+	const RIGHT = "RIGHT"
+	const LEFT = "LEFT"
 
-// 	return 0
-// }
+	m := make(map[string]int)
 
-// func generateNeighboors( x int, y int, direction string ) []string {
-// 	switch direction
-// }
+	currentPosition := position{0, 0, "0,0"}
+	m[currentPosition.hash] = 1
+	currDirection := DOWN
+	currValue := 1
+
+	for currValue <= target {
+		var positionOnTheLeft position
+		var newPositionOnTheLeft string
+		switch currDirection {
+		case UP:
+			positionOnTheLeft = newPosition(currentPosition.x-1, currentPosition.y)
+			newPositionOnTheLeft = LEFT
+		case DOWN:
+			positionOnTheLeft = newPosition(currentPosition.x+1, currentPosition.y)
+			newPositionOnTheLeft = RIGHT
+		case RIGHT:
+			positionOnTheLeft = newPosition(currentPosition.x, currentPosition.y+1)
+			newPositionOnTheLeft = UP
+		case LEFT:
+			positionOnTheLeft = newPosition(currentPosition.x, currentPosition.y-1)
+			newPositionOnTheLeft = DOWN
+		default:
+			panic("Unrecognized position!")
+
+		}
+
+		var nextPosition position
+		if m[positionOnTheLeft.hash] == 0 {
+			nextPosition = positionOnTheLeft
+			currDirection = newPositionOnTheLeft
+		} else {
+			switch currDirection {
+			case UP:
+				nextPosition = newPosition(currentPosition.x, currentPosition.y+1)
+				currDirection = UP
+			case DOWN:
+				nextPosition = newPosition(currentPosition.x, currentPosition.y-1)
+				currDirection = DOWN
+			case RIGHT:
+				nextPosition = newPosition(currentPosition.x+1, currentPosition.y)
+				currDirection = RIGHT
+			case LEFT:
+				nextPosition = newPosition(currentPosition.x-1, currentPosition.y)
+				currDirection = LEFT
+			default:
+				panic("Unrecognized position!")
+
+			}
+		}
+
+		currValue = 0
+		for _, currNeighbor := range generateNeighbors(nextPosition) {
+			currValue += m[currNeighbor.hash]
+		}
+		m[nextPosition.hash] = currValue
+		currentPosition = nextPosition
+	}
+	return currValue
+}
+
+func generateNeighbors(p position) []position {
+	result := []position{}
+	result = append(result, newPosition(p.x, p.y-1))
+	result = append(result, newPosition(p.x, p.y+1))
+	result = append(result, newPosition(p.x-1, p.y))
+	result = append(result, newPosition(p.x+1, p.y))
+
+	result = append(result, newPosition(p.x+1, p.y+1))
+	result = append(result, newPosition(p.x-1, p.y-1))
+	result = append(result, newPosition(p.x-1, p.y+1))
+	result = append(result, newPosition(p.x+1, p.y-1))
+
+	return result
+}
+
+func newPosition(x int, y int) position {
+	return position{x, y, strconv.Itoa(x) + "," + strconv.Itoa(y)}
+}
