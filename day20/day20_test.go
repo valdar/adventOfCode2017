@@ -22,10 +22,6 @@ func TestSolveA(t *testing.T) {
 	}
 }
 
-// p=<-6,0,0>, v=< 3,0,0>, a=< 0,0,0>
-// p=<-4,0,0>, v=< 2,0,0>, a=< 0,0,0>
-// p=<-2,0,0>, v=< 1,0,0>, a=< 0,0,0>
-// p=< 3,0,0>, v=<-1,0,0>, a=< 0,0,0>
 func TestSolveB(t *testing.T) {
 	cases := []struct {
 		in   []particel
