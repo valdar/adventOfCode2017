@@ -3,22 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"os"
-	"strconv"
-	"strings"
 
+	"github.com/valdar/adventOfCode2017/day18/instructions"
 	"github.com/valdar/adventOfCode2017/utils"
 )
-
-type instruction struct {
-	operation             string
-	firstOperandNumeric   int
-	firstOperandRegistry  string
-	secondOperandNumeric  int
-	secondOperandRegistry string
-	oneOperand            bool
-}
 
 func main() {
 	caseSelection := os.Args[1]
@@ -27,7 +16,7 @@ func main() {
 	utils.Check(err)
 	br := bufio.NewReader(f)
 
-	program := parse(br)
+	program := instructions.Parse(br)
 
 	switch {
 	case caseSelection == "A":
@@ -41,13 +30,13 @@ func main() {
 	}
 }
 
-func SolveA(program []instruction, registryStatus map[string]int, recoveryregistryname string) int {
+func SolveA(program []instructions.Instruction, registryStatus map[string]int, recoveryregistryname string) int {
 	pc := 0
 
 	for pc >= 0 && pc < len(program) {
 		currInstruction := program[pc]
 		executed, offsetNextInstruction := execInstruction(currInstruction, registryStatus, recoveryregistryname)
-		if executed && currInstruction.operation == "rcv" {
+		if executed && currInstruction.Operation == "rcv" {
 			return registryStatus[recoveryregistryname]
 		}
 		pc += offsetNextInstruction
@@ -55,7 +44,7 @@ func SolveA(program []instruction, registryStatus map[string]int, recoveryregist
 	return registryStatus[recoveryregistryname]
 }
 
-func SolveB(program []instruction) int {
+func SolveB(program []instructions.Instruction) int {
 	pc0 := 0
 	pc1 := 0
 
@@ -105,7 +94,7 @@ func SolveB(program []instruction) int {
 			currInstruction1 := program[pc1]
 			var offsetNextInstruction1 int
 			running1, offsetNextInstruction1 = execInstructionB(currInstruction1, registryStatus1, &queueTo0, &queueTo1)
-			if currInstruction1.operation == "snd" {
+			if currInstruction1.Operation == "snd" {
 				program1EmittedValues++
 			}
 			if offsetNextInstruction1 != 0 {
@@ -116,22 +105,22 @@ func SolveB(program []instruction) int {
 	}
 }
 
-func execInstruction(currInstruction instruction, registryStatus map[string]int, recoveryregistryname string) (bool, int) {
-	if currInstruction.oneOperand {
-		switch currInstruction.operation {
+func execInstruction(currInstruction instructions.Instruction, registryStatus map[string]int, recoveryregistryname string) (bool, int) {
+	if currInstruction.OneOperand {
+		switch currInstruction.Operation {
 		case "snd":
 			var firstOperand int
-			if currInstruction.firstOperandRegistry == "" {
-				firstOperand = currInstruction.firstOperandNumeric
+			if currInstruction.FirstOperandRegistry == "" {
+				firstOperand = currInstruction.FirstOperandNumeric
 			} else {
-				firstOperand = registryStatus[currInstruction.firstOperandRegistry]
+				firstOperand = registryStatus[currInstruction.FirstOperandRegistry]
 			}
 			registryStatus[recoveryregistryname] = firstOperand
 			return true, 1
 		case "rcv":
-			if currInstruction.firstOperandRegistry == "" {
+			if currInstruction.FirstOperandRegistry == "" {
 				panic("Malformed rcv operation!")
-			} else if registryStatus[currInstruction.firstOperandRegistry] != 0 {
+			} else if registryStatus[currInstruction.FirstOperandRegistry] != 0 {
 				return true, 1
 			} else {
 				return false, 1
@@ -140,21 +129,21 @@ func execInstruction(currInstruction instruction, registryStatus map[string]int,
 			panic("Not supported single operand operation!")
 		}
 	} else {
-		if currInstruction.operation != "jgz" && currInstruction.firstOperandRegistry == "" {
+		if currInstruction.Operation != "jgz" && currInstruction.FirstOperandRegistry == "" {
 			panic("Malformed double operand set. add, mul, mod operation!")
 		}
 
-		firstOperandNum := currInstruction.firstOperandNumeric
-		firstOperandReg := currInstruction.firstOperandRegistry
+		firstOperandNum := currInstruction.FirstOperandNumeric
+		firstOperandReg := currInstruction.FirstOperandRegistry
 		var secondOperand int
 
-		if currInstruction.secondOperandRegistry == "" {
-			secondOperand = currInstruction.secondOperandNumeric
+		if currInstruction.SecondOperandRegistry == "" {
+			secondOperand = currInstruction.SecondOperandNumeric
 		} else {
-			secondOperand = registryStatus[currInstruction.secondOperandRegistry]
+			secondOperand = registryStatus[currInstruction.SecondOperandRegistry]
 		}
 
-		switch currInstruction.operation {
+		switch currInstruction.Operation {
 		case "set":
 			registryStatus[firstOperandReg] = secondOperand
 			return true, 1
@@ -185,23 +174,23 @@ func execInstruction(currInstruction instruction, registryStatus map[string]int,
 	}
 }
 
-func execInstructionB(currInstruction instruction, registryStatus map[string]int, queueTo *[]int, queueFrom *[]int) (bool, int) {
-	if currInstruction.oneOperand {
-		switch currInstruction.operation {
+func execInstructionB(currInstruction instructions.Instruction, registryStatus map[string]int, queueTo *[]int, queueFrom *[]int) (bool, int) {
+	if currInstruction.OneOperand {
+		switch currInstruction.Operation {
 		case "snd":
 			var firstOperand int
-			if currInstruction.firstOperandRegistry == "" {
-				firstOperand = currInstruction.firstOperandNumeric
+			if currInstruction.FirstOperandRegistry == "" {
+				firstOperand = currInstruction.FirstOperandNumeric
 			} else {
-				firstOperand = registryStatus[currInstruction.firstOperandRegistry]
+				firstOperand = registryStatus[currInstruction.FirstOperandRegistry]
 			}
 			*queueTo = append(*queueTo, firstOperand)
 			return true, 1
 		case "rcv":
-			if currInstruction.firstOperandRegistry == "" {
+			if currInstruction.FirstOperandRegistry == "" {
 				panic("Malformed rcv operation!")
 			} else if len(*queueFrom) > 0 {
-				registryStatus[currInstruction.firstOperandRegistry] = (*queueFrom)[0]
+				registryStatus[currInstruction.FirstOperandRegistry] = (*queueFrom)[0]
 				*queueFrom = (*queueFrom)[1:]
 				return true, 1
 			} else {
@@ -211,21 +200,21 @@ func execInstructionB(currInstruction instruction, registryStatus map[string]int
 			panic("Not supported single operand operation!")
 		}
 	} else {
-		if currInstruction.operation != "jgz" && currInstruction.firstOperandRegistry == "" {
+		if currInstruction.Operation != "jgz" && currInstruction.FirstOperandRegistry == "" {
 			panic("Malformed double operand set. add, mul, mod operation!")
 		}
 
-		firstOperandNum := currInstruction.firstOperandNumeric
-		firstOperandReg := currInstruction.firstOperandRegistry
+		firstOperandNum := currInstruction.FirstOperandNumeric
+		firstOperandReg := currInstruction.FirstOperandRegistry
 		var secondOperand int
 
-		if currInstruction.secondOperandRegistry == "" {
-			secondOperand = currInstruction.secondOperandNumeric
+		if currInstruction.SecondOperandRegistry == "" {
+			secondOperand = currInstruction.SecondOperandNumeric
 		} else {
-			secondOperand = registryStatus[currInstruction.secondOperandRegistry]
+			secondOperand = registryStatus[currInstruction.SecondOperandRegistry]
 		}
 
-		switch currInstruction.operation {
+		switch currInstruction.Operation {
 		case "set":
 			registryStatus[firstOperandReg] = secondOperand
 			return true, 1
@@ -254,47 +243,4 @@ func execInstructionB(currInstruction instruction, registryStatus map[string]int
 			panic("Not supported two operand operation!")
 		}
 	}
-}
-
-func parse(br *bufio.Reader) []instruction {
-	program := []instruction{}
-	for {
-		line, err := utils.ReadLine(br)
-		if err != nil {
-			if err == io.EOF {
-				//file is ended
-				break
-			}
-			panic(err)
-		}
-		//discard endline
-		input := line[:len(line)-1]
-
-		parts := strings.Split(input, " ")
-
-		if len(parts) == 2 {
-			firstOperandNum, err := strconv.Atoi(strings.TrimSpace(parts[1]))
-			if err == nil {
-				program = append(program, instruction{strings.TrimSpace(parts[0]), firstOperandNum, "", 0, "", true})
-			} else {
-				program = append(program, instruction{strings.TrimSpace(parts[0]), 0, strings.TrimSpace(parts[1]), 0, "", true})
-			}
-		} else if len(parts) == 3 {
-			firstOperandNum, err1 := strconv.Atoi(strings.TrimSpace(parts[1]))
-			secondOperandNum, err2 := strconv.Atoi(strings.TrimSpace(parts[2]))
-
-			if err1 == nil && err2 == nil {
-				program = append(program, instruction{strings.TrimSpace(parts[0]), firstOperandNum, "", secondOperandNum, "", false})
-			} else if err1 != nil && err2 == nil {
-				program = append(program, instruction{strings.TrimSpace(parts[0]), 0, strings.TrimSpace(parts[1]), secondOperandNum, "", false})
-			} else if err1 == nil && err2 != nil {
-				program = append(program, instruction{strings.TrimSpace(parts[0]), firstOperandNum, "", 0, strings.TrimSpace(parts[2]), false})
-			} else if err1 != nil && err2 != nil {
-				program = append(program, instruction{strings.TrimSpace(parts[0]), 0, strings.TrimSpace(parts[1]), 0, strings.TrimSpace(parts[2]), false})
-			}
-		} else {
-			panic("Not parsable input!")
-		}
-	}
-	return program
 }

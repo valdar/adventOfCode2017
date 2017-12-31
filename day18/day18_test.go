@@ -2,14 +2,16 @@ package main
 
 import (
 	"testing"
+
+	"github.com/valdar/adventOfCode2017/day18/instructions"
 )
 
 func TestSolveA(t *testing.T) {
 	cases := []struct {
-		inProgram []instruction
+		inProgram []instructions.Instruction
 		want      int
 	}{
-		{[]instruction{
+		{[]instructions.Instruction{
 			{"set", 0, "a", 1, "", false},
 			{"add", 0, "a", 2, "", false},
 			{"mul", 0, "a", 0, "a", false},
@@ -32,10 +34,10 @@ func TestSolveA(t *testing.T) {
 
 func TestSolveB(t *testing.T) {
 	cases := []struct {
-		inProgram []instruction
+		inProgram []instructions.Instruction
 		want      int
 	}{
-		{[]instruction{
+		{[]instructions.Instruction{
 			{"snd", 0, "a", 0, "", true},
 			{"snd", 0, "b", 0, "", true},
 			{"snd", 0, "p", 0, "", true},
