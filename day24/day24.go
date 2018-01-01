@@ -32,10 +32,10 @@ func main() {
 
 	switch {
 	case caseSelection == "A":
-		fmt.Printf("Solving... please wait upp to 20 minutes on a modern hardware\n")
+		fmt.Printf("Solving... please wait upp to 20 minutes on a modern hardware (if you want to see the progress decomment line 129)\n")
 		fmt.Printf("The strongest bridge available is %d\n", SolveA(ports))
 	case caseSelection == "B":
-		fmt.Printf("Solving... please wait upp to 20 minutes on a modern hardware\n")
+		fmt.Printf("Solving... please wait upp to 20 minutes on a modern hardware (if you want to see the progress decomment line 129)\n")
 		fmt.Printf("The strongest longest bridge available is %d\n", SolveB(ports))
 	default:
 		fmt.Printf("Invalid Selection, possible values: A or B\n")
